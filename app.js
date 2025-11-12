@@ -3,9 +3,19 @@ const express = require('express');
 const app = express();
 // Or
 // const app = require('express')();
+const DBConnect = require('./database/server');
 
+// Database Connection
+DBConnect();
+
+// app.get('/', (req, res) => {
+//   res.send('Hello World!');
+// });
+// Or
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.json({ 
+    message: 'Hello World!' 
+  });
 });
 
 const PORT = process.env.PORT;
