@@ -5,8 +5,15 @@ const app = express();
 // const app = require('express')();
 const DBConnect = require('./database/server');
 
-// Database Connection
+// Middleware
+app.use(express.json()); // To parse JSON bodies
+app.use(express.urlencoded({ extended: true })); // Use when frontend in ejs not in react and other frameworks
+
+// *Database Connection
 DBConnect();
+
+// *Routes
+const bookRoute =  require('./routes/bookRoute');
 
 // app.get('/', (req, res) => {
 //   res.send('Hello World!');
@@ -17,6 +24,9 @@ app.get('/', (req, res) => {
     message: 'Hello World!' 
   });
 });
+
+// *Using routes here
+app.use("/", bookRoute);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
