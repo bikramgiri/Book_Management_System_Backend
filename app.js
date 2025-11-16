@@ -3,9 +3,9 @@ const express = require('express');
 const app = express();
 // Or
 // const app = require('express')();
-const DBConnect = require('./database/server');
+const DBConnect = require('./database/index');
 
-// Middleware
+// *Middleware
 app.use(express.json()); // To parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Use when frontend in ejs not in react and other frameworks
 

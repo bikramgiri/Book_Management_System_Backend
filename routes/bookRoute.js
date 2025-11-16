@@ -1,4 +1,4 @@
-const { addBook, fetchBooks, fetchBook } = require('../controller/bookController');
+const { addBook, fetchBooks, fetchBook, updateBook, deleteBook } = require('../controller/bookController');
 const router = require('express').Router();
 
 router.route('/books')
@@ -7,10 +7,7 @@ router.route('/books')
 
 router.route("/books/:bookId")
 .get(fetchBook)
+.patch(updateBook)
+.delete(deleteBook)
 
 module.exports = router;
-
-
-
-// find = return array
-// findById = return object
