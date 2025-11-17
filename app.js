@@ -3,6 +3,8 @@ const express = require('express');
 const app = express();
 // Or
 // const app = require('express')();
+
+const { multer, storage, upload } = require("./middleware/multerConfig"); // Import multer and storage configuration
 const DBConnect = require('./database/index');
 
 // *Middleware
@@ -11,6 +13,12 @@ app.use(express.urlencoded({ extended: true })); // Use when frontend in ejs not
 
 // *Database Connection
 DBConnect();
+
+// *Give access to storage folder images
+app.use("/storage", express.static("storage")); // Serve static files from the storage directory
+// or
+// give access to images in storage folder
+// app.use(express.static('storage'))
 
 // *Routes
 const bookRoute =  require('./routes/bookRoute');

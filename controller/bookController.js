@@ -1,15 +1,34 @@
 const Book = require("../model/bookModel");
+const fs = require("fs");
 
 // Add Book
 exports.addBook = async (req, res) => {
-      const { bookName, bookPrice, autherName, bookDescription, isbnNumber, publication, publishedAt } = req.body;
-      if (!bookName || !bookPrice || !autherName || !bookDescription || !isbnNumber || !publication || !publishedAt) {
-            return res.status(400).json({ 
-                  message: "bookName, bookPrice, autherName, bookDescription, isbnNumber, publication and publishedAt are required" 
-            });
+      const file = req.file;
+
+      if (!file) {
+        return res.status(400).json({
+          message: "Product image is required",
+       });
       }
 
-      // validate book name length
+      // if (!file) {
+      //       productImage = "No image uploaded"; // If no file is uploaded, set a default message
+      // } else {
+      //       productImage = process.env.BACKEND_URL + '/storage/' + file.filename; // Get the filename from the uploaded file
+      // }
+
+      // *OR
+
+      const bookImage = process.env.BACKEND_URL + "/storage/" + file.filename; // Get the filename from the uploaded file
+
+      const { bookName, bookPrice, authorName, bookDescription, isbnNumber, publication, publishedAt } = req.body;
+      // if (!bookName || !bookImage || !bookPrice || !authorName || !bookDescription || !isbnNumber || !publication || !publishedAt) {
+      //       return res.status(400).json({ 
+      //             message: "bookName, bookImage, bookPrice, authorName, bookDescription, isbnNumber, publication and publishedAt are required" 
+      //       });
+      // }
+
+      // validate book name length must 2 characters or more
       if (bookName.length < 2) {
             return res.status(400).json({ 
                   message: "Book name must be at least 2 characters long" 
@@ -24,6 +43,14 @@ exports.addBook = async (req, res) => {
             });
       }
 
+      // validate product image is already exists
+      const existingImage = await Book.findOne({ bookImage });
+      if (existingImage) {
+            return res.status(400).json({
+                  message: "Book with this image already exists",
+            });
+      }
+
       // validate book price is a positive number
       const price = parseFloat(bookPrice); 
       if (isNaN(price) || price <= 0) {
@@ -33,9 +60,9 @@ exports.addBook = async (req, res) => {
       }
 
       // validate auther name length
-      if (autherName.length < 3) {
+      if (authorName.length < 3) { // at least 3 characters
             return res.status(400).json({ 
-                  message: "Auther name must be at least 3 characters long" 
+                  message: "Author name must be at least 3 characters long" 
             });
       }
 
@@ -46,10 +73,18 @@ exports.addBook = async (req, res) => {
             });
       }
 
+      // validate isbnNumber is already exists
+      const existingISBN = await Book.findOne({ isbnNumber });
+      if (existingISBN) {
+            return res.status(400).json({
+                  message: "Book with this ISBN Number already exists"
+            });
+      }
+
       // validate isbnNumber is positive number with length >4 like 45600, 12345, 78098
-      if (!/^\d{4,}$/.test(isbnNumber)) {
+      if (!/^\d{13,}$/.test(isbnNumber)) {
             return res.status(400).json({ 
-                  message: "ISBN Number must be a positive number with at least 4 digits" 
+                  message: "ISBN Number must be a positive number with at least 13 digits" 
             });
       }
       
@@ -64,8 +99,9 @@ exports.addBook = async (req, res) => {
 
       const newBook = await Book.create({
             bookName : bookName,
+            bookImage : bookImage,
             bookPrice : parseFloat(bookPrice),
-            autherName : autherName,
+            authorName : authorName,
             bookDescription : bookDescription,
             isbnNumber : isbnNumber,
             publication : publication,
@@ -133,10 +169,12 @@ exports.updateBook = async (req, res) => {
             });
       }
 
-      const { bookName, bookPrice, autherName, bookDescription, isbnNumber, publication, publishedAt } = req.body;
-      if (!bookName || !bookPrice || !autherName || !bookDescription || !isbnNumber || !publication || !publishedAt) {
+      let bookImage = book.bookImage; // http://localhost:3000/storage/AI.jpeg
+
+      const { bookName, bookPrice, authorName, bookDescription, isbnNumber, publication, publishedAt } = req.body;
+      if (!bookName || !bookImage || !bookPrice || !authorName || !bookDescription || !isbnNumber || !publication || !publishedAt) {
             return res.status(400).json({ 
-                  message: "bookName, bookPrice, autherName, bookDescription, isbnNumber, publication and publishedAt are required" 
+                  message: "bookName, bookImage, bookPrice, authorName, bookDescription, isbnNumber, publication and publishedAt are required" 
             });
       }
 
@@ -163,10 +201,10 @@ exports.updateBook = async (req, res) => {
             });
       }
 
-      // validate auther name length
-      if (autherName.length < 3) {
+      // validate author name length
+      if (authorName.length < 3) {
             return res.status(400).json({ 
-                  message: "Auther name must be at least 3 characters long" 
+                  message: "Author name must be at least 3 characters long" 
             });
       }
 
@@ -192,10 +230,25 @@ exports.updateBook = async (req, res) => {
             });
       }
 
+      if (req.file && req.file.filename) {
+        const oldBookImage = book.bookImage;
+        const lengthToCut = "http://localhost:3000/storage/".length;
+        const finalImagePathAfterCut = oldBookImage.slice(lengthToCut);
+        fs.unlink("./storage/" + finalImagePathAfterCut, (err) => {
+          if (err) {
+            console.error("Error deleting old image:", err);
+          } else {
+            console.log("Old image deleted successfully");
+          }
+       });
+       bookImage = process.env.BACKEND_URL + "/storage/" + req.file.filename;
+      }
+
       const updatedBook = await Book.findByIdAndUpdate(bookId, {
             bookName : bookName,
+            bookImage : bookImage,
             bookPrice : parseFloat(bookPrice),
-            autherName : autherName,
+            authorName : authorName,
             bookDescription : bookDescription,
             isbnNumber : isbnNumber,
             publication : publication,
@@ -223,6 +276,18 @@ exports.deleteBook = async (req, res) => {
                   message: "Book not found with this ID"
             });
       }
+
+      const oldBookImage = book.bookImage; // http://localhost:3000/storage/AI.jpeg
+      const lengthToCut = "http://localhost:3000/storage/".length;
+      const finalImagePathAfterCut = oldBookImage.slice(lengthToCut);
+      // Delete the image file from Storage folder
+      fs.unlink("./storage/" + finalImagePathAfterCut, (err) => {
+       if (err) {
+         console.error("Error deleting image:", err);
+       } else {
+         console.log("Image deleted successfully");
+       }
+      });
 
       await Book.findByIdAndDelete(bookId);
 

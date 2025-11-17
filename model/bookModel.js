@@ -8,13 +8,14 @@ const bookSchema = new Schema({
             required : true
       },
       bookImage : {
-            type : String
+            type : String,
+            required : [true, 'Book image is required']
       },
       bookPrice : {
-            type : String,
+            type : Number,
             required : true
       },
-      autherName : {
+      authorName : {
             type : String,
             required : true
       },
@@ -23,7 +24,7 @@ const bookSchema = new Schema({
             required : true
       },
       isbnNumber : {
-            type : String,
+            type : Number,
             required : true
       },
       publication : {
