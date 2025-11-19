@@ -81,7 +81,7 @@ exports.addBook = async (req, res) => {
             });
       }
 
-      // validate isbnNumber is positive number with length >4 like 45600, 12345, 78098
+      // validate isbnNumber is positive number with length >13 like 9780134190440, 9780262033848
       if (!/^\d{13,}$/.test(isbnNumber)) {
             return res.status(400).json({ 
                   message: "ISBN Number must be a positive number with at least 13 digits" 
@@ -193,6 +193,14 @@ exports.updateBook = async (req, res) => {
       //       });
       // }
 
+      // validate product image is already exists
+      const existingImage = await Book.findOne({ bookImage });
+      if (existingImage && existingImage._id.toString() !== bookId) { //
+            return res.status(400).json({
+                  message: "Book with this image already exists",
+            });
+      }
+
       // validate book price is a positive number
       const price = parseFloat(bookPrice); 
       if (isNaN(price) || price <= 0) {
@@ -215,10 +223,10 @@ exports.updateBook = async (req, res) => {
             });
       }
 
-      // validate isbnNumber is positive number with length >4 like 45600, 12345, 78098
-      if (!/^\d{4,}$/.test(isbnNumber)) {
+      // validate isbnNumber is positive number with length >13 like 9780134190440, 9780262033848
+      if (!/^\d{13,}$/.test(isbnNumber)) {
             return res.status(400).json({ 
-                  message: "ISBN Number must be a positive number with at least 4 digits" 
+                  message: "ISBN Number must be a positive number with at least 13 digits" 
             });
       }
       
@@ -230,9 +238,9 @@ exports.updateBook = async (req, res) => {
             });
       }
 
-      if (req.file && req.file.filename) {
+      if (req.file && req.file.filename) { 
         const oldBookImage = book.bookImage;
-        const lengthToCut = "http://localhost:3000/storage/".length;
+        const lengthToCut = process.env.BACKEND_URL_STORAGE.length;
         const finalImagePathAfterCut = oldBookImage.slice(lengthToCut);
         fs.unlink("./storage/" + finalImagePathAfterCut, (err) => {
           if (err) {
@@ -240,8 +248,8 @@ exports.updateBook = async (req, res) => {
           } else {
             console.log("Old image deleted successfully");
           }
-       });
-       bookImage = process.env.BACKEND_URL + "/storage/" + req.file.filename;
+        });
+        bookImage = process.env.BACKEND_URL + "/storage/" + req.file.filename;
       }
 
       const updatedBook = await Book.findByIdAndUpdate(bookId, {

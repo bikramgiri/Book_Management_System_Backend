@@ -1,5 +1,4 @@
 // *Useful in all project
-
 const multer = require('multer') // format: ecma script module
 
 const storage = multer.diskStorage({
@@ -8,7 +7,7 @@ const storage = multer.diskStorage({
         // logic to validate fileType(mimeType)
         const allowedFileTypes = ['image/jpeg', 'image/png', 'image/jpg']
         if (!allowedFileTypes.includes(file.mimetype)) {
-          cb(new Error('Invalid file type. Only JPEG, JPG and PNG are allowed.'));
+          cb(new Error('File type is not supported.'));
           return ; 
         }
 
