@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const app = express();
 // Or
 // const app = require('express')();
@@ -10,6 +11,12 @@ const DBConnect = require('./database/index');
 // *Middleware
 app.use(express.json()); // To parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Use when frontend in ejs not in react and other frameworks
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Allow requests from this origin
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+  })
+);
 
 // *Database Connection
 DBConnect();
