@@ -6,7 +6,7 @@ router.route('/books')
 .post(upload.single('bookImage'), addBook)
 .get(fetchBooks)
 
-router.route("/books/:bookId")
+router.route("/book/:bookId")
 .get(fetchBook)
 .patch((upload.single('bookImage')), updateBook)
 .delete(deleteBook)
