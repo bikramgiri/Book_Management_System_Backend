@@ -172,11 +172,11 @@ exports.updateBook = async (req, res) => {
       let bookImage = book.bookImage; // http://localhost:3000/storage/AI.jpeg
 
       const { bookName, bookPrice, authorName, bookDescription, isbnNumber, publication, publishedAt } = req.body;
-      if (!bookName || !bookImage || !bookPrice || !authorName || !bookDescription || !isbnNumber || !publication || !publishedAt) {
-            return res.status(400).json({ 
-                  message: "bookName, bookImage, bookPrice, authorName, bookDescription, isbnNumber, publication and publishedAt are required" 
-            });
-      }
+      // if (!bookName || !bookImage || !bookPrice || !authorName || !bookDescription || !isbnNumber || !publication || !publishedAt) {
+      //       return res.status(400).json({ 
+      //             message: "bookName, bookImage, bookPrice, authorName, bookDescription, isbnNumber, publication and publishedAt are required" 
+      //       });
+      // }
 
       // validate book name length
       if (bookName.length < 2) {
